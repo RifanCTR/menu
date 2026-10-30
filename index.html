@@ -1,668 +1,572 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0b1020">
-<title>Tools & Scripts Library</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tools & Scripts Library</title>
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --bg: #0b1020;
-    --card: #141c30;
-    --card-hover: #1a2540;
-    --text: #f1f5ff;
-    --muted: #9ba8c1;
-    --accent: #6c8cff;
-    --border: #293653;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-}
-
-.container {
-    width: 100%;
-    max-width: 850px;
-    margin: auto;
-    padding: 25px 18px 50px;
-}
-
-/* HEADER */
-.header {
-    margin-bottom: 28px;
-}
-
-.logo {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    color: var(--accent);
-    background: #1b2948;
-    padding: 9px 13px;
-    border-radius: 7px;
-    margin-bottom: 16px;
-}
-
-.header h1 {
-    font-size: 28px;
-    margin-bottom: 9px;
-}
-
-.header p {
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-/* SEARCH */
-.search-box {
-    margin-bottom: 25px;
-}
-
-.search-box input {
-    width: 100%;
-    padding: 15px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    outline: none;
-    background: var(--card);
-    color: var(--text);
-    font-size: 14px;
-}
-
-.search-box input:focus {
-    border-color: var(--accent);
-}
-
-.search-box input::placeholder {
-    color: #7785a2;
-}
-
-/* SECTION */
-.section-title {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 1.5px;
-    margin-bottom: 13px;
-}
-
-.tool-list {
-    display: grid;
-    gap: 12px;
-}
-
-/* TOOL CARD */
-.tool-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 17px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.tool-card:hover {
-    background: var(--card-hover);
-    border-color: var(--accent);
-    transform: translateY(-2px);
-}
-
-/* CODE ICON */
-.tool-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: #24345b;
-    border: 1px solid #344875;
-    border-radius: 11px;
-    color: #91aaff;
-    font-family: monospace;
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: -2px;
-}
-
-.tool-info {
-    flex: 1;
-}
-
-.tool-info h3 {
-    font-size: 15px;
-    margin-bottom: 6px;
-}
-
-.tool-info p {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
-}
-
-.tool-number {
-    color: var(--accent);
-    margin-right: 5px;
-}
-
-.arrow {
-    color: var(--muted);
-    font-size: 23px;
-}
-
-/* DETAIL */
-.detail {
-    display: none;
-    margin-top: 22px;
-    padding: 20px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    scroll-margin-top: 20px;
-}
-
-.detail.active {
-    display: block;
-}
-
-.detail-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 22px;
-}
-
-.detail-header h2 {
-    font-size: 18px;
-}
-
-.close-btn {
-    border: none;
-    background: #293653;
-    color: white;
-    padding: 9px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-/* INPUT FIELD */
-.field {
-    margin-bottom: 19px;
-}
-
-.field label {
-    display: block;
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: .5px;
-    margin-bottom: 9px;
-    color: #c5d1ed;
-}
-
-.copy-row {
-    display: flex;
-    gap: 8px;
-}
-
-.copy-row input {
-    width: 100%;
-    min-width: 0;
-    background: #090e1b;
-    border: 1px solid var(--border);
-    color: #cbd7f5;
-    border-radius: 9px;
-    padding: 12px;
-    font-size: 12px;
-    outline: none;
-}
-
-.copy-row button,
-.copy-code {
-    border: none;
-    background: var(--accent);
-    color: white;
-    border-radius: 9px;
-    padding: 0 15px;
-    font-weight: bold;
-    font-size: 11px;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.code-box {
-    display: block;
-    width: 100%;
-    min-height: 100px;
-    max-height: 220px;
-    overflow: auto;
-    background: #090e1b;
-    border: 1px solid var(--border);
-    color: #a9c5ff;
-    border-radius: 9px;
-    padding: 13px;
-    font-family: monospace;
-    font-size: 12px;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-.copy-code {
-    margin-top: 10px;
-    padding: 12px 17px;
-}
-
-/* NOTE */
-.note {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.7;
-    margin-top: 17px;
-    padding: 13px;
-    background: #1b2948;
-    border-radius: 9px;
-}
-
-/* AU CREDIT */
-.credit {
-    margin-top: 20px;
-    padding: 18px;
-    background: #1b2948;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    text-align: center;
-    line-height: 1.8;
-}
-
-.credit-label {
-    display: block;
-    color: var(--accent);
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-}
-
-.credit h3 {
-    font-size: 20px;
-    letter-spacing: 2px;
-    margin-bottom: 5px;
-}
-
-.credit p {
-    color: var(--muted);
-    font-size: 12px;
-}
-
-.credit a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.credit a:hover {
-    text-decoration: underline;
-}
-
-/* EMPTY SEARCH */
-.empty {
-    display: none;
-    text-align: center;
-    color: var(--muted);
-    padding: 25px;
-}
-
-/* FOOTER */
-footer {
-    margin-top: 40px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 12px;
-}
-
-/* MOBILE */
-@media(max-width: 480px) {
-    .container {
-        padding: 22px 15px 40px;
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #141c30;
+      --card-hover: #1a2540;
+      --text: #f1f5ff;
+      --muted: #9ba8c1;
+      --accent: #6c8cff;
+      --border: #293653;
     }
 
-    .header h1 {
-        font-size: 25px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      padding: 25px 16px;
+    }
+
+    .container {
+      max-width: 750px;
+      margin: auto;
+    }
+
+    header {
+      margin-bottom: 30px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      background: rgba(108, 140, 255, 0.1);
+      border: 1px solid rgba(108, 140, 255, 0.25);
+      padding: 7px 11px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    header h1 {
+      font-size: clamp(27px, 6vw, 38px);
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .search-box {
+      margin-bottom: 30px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 15px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    .section-title {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 15px;
+    }
+
+    .tool-list {
+      display: grid;
+      gap: 12px;
     }
 
     .tool-card {
-        padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 17px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .tool-card:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
     }
 
     .tool-icon {
-        width: 44px;
-        height: 44px;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(108, 140, 255, 0.12);
+      border: 1px solid rgba(108, 140, 255, 0.25);
+      border-radius: 10px;
+      color: var(--accent);
+      font-size: 17px;
+      font-weight: bold;
     }
 
-    .detail {
-        padding: 16px;
+    .tool-info {
+      flex: 1;
     }
-}
-</style>
+
+    .tool-number {
+      color: var(--accent);
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .tool-info h3 {
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .tool-info p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .empty {
+      display: none;
+      text-align: center;
+      padding: 25px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* DETAIL PANEL */
+
+    .detail-panel {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 20px;
+      animation: appear 0.25s ease;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .detail-header h2 {
+      font-size: 17px;
+    }
+
+    .close-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .detail-section {
+      margin-bottom: 22px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-heading span {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+    }
+
+    .copy-btn {
+      background: rgba(108, 140, 255, 0.12);
+      border: 1px solid rgba(108, 140, 255, 0.3);
+      color: var(--accent);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .copy-btn:active {
+      transform: scale(0.95);
+    }
+
+    .text-box {
+      background: #0b1020;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .code-box {
+      background: #080d19;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      overflow-x: auto;
+      color: #a9c4ff;
+      font-size: 12px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .note {
+      background: rgba(108, 140, 255, 0.07);
+      border-left: 3px solid var(--accent);
+      padding: 13px;
+      border-radius: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+
+    /* AU CREDIT */
+
+    .credit {
+      background: #0b1020;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 17px;
+      margin-top: 25px;
+    }
+
+    .credit-label {
+      display: inline-block;
+      color: var(--accent);
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .credit h3 {
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .credit p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .credit a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .credit a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 35px 0 10px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 22px 14px;
+      }
+
+      .detail-panel {
+        padding: 16px;
+      }
+
+      .tool-card {
+        padding: 14px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-    <!-- HEADER -->
-    <header class="header">
-        <div class="logo">MY COLLECTION</div>
-
-        <h1>Tools & Scripts</h1>
-
-        <p>
-            Kumpulan tools, bookmarklet, dan script
-            dalam satu tempat.
-        </p>
+    <header>
+      <div class="badge">MY COLLECTION</div>
+      <h1>Tools & Scripts</h1>
+      <p>Kumpulan tools, bookmarklet, dan script dalam satu tempat.</p>
     </header>
 
-
-    <!-- SEARCH -->
     <div class="search-box">
-        <input
-            type="text"
-            id="search"
-            placeholder="Cari tools atau script..."
-        >
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Cari tools atau script..."
+        oninput="searchTools()"
+      >
     </div>
 
-
-    <!-- TOOL LIST -->
     <h2 class="section-title">DAFTAR TOOLS</h2>
 
     <div class="tool-list" id="toolList">
 
-        <div class="tool-card" onclick="showDetail('eruda')">
+      <div
+        class="tool-card"
+        onclick="openDetail()"
+        data-search="eruda console developer browser mobile javascript bookmarklet curpass"
+      >
+        <div class="tool-icon">&lt;/&gt;</div>
 
-            <div class="tool-icon">&lt;/&gt;</div>
-
-            <div class="tool-info">
-                <h3>
-                    <span class="tool-number">01</span>
-                    Eruda Console
-                </h3>
-
-                <p>
-                    Membuka developer console di browser mobile.
-                </p>
-            </div>
-
-            <div class="arrow">›</div>
-
+        <div class="tool-info">
+          <div class="tool-number">01</div>
+          <h3>Eruda Console</h3>
+          <p>Membuka developer console di browser mobile.</p>
         </div>
+
+        <div class="arrow">›</div>
+      </div>
 
     </div>
 
-
-    <!-- EMPTY SEARCH -->
-    <div class="empty" id="empty">
-        Tools tidak ditemukan.
+    <div class="empty" id="emptyMessage">
+      Tools tidak ditemukan.
     </div>
 
+    <!-- DETAIL PANEL -->
 
-    <!-- DETAIL TOOL -->
-    <section class="detail" id="detail">
+    <div class="detail-panel" id="detailPanel">
 
-        <div class="detail-header">
-            <h2 id="detailTitle">Detail Tool</h2>
+      <div class="detail-header">
+        <h2>01 — Eruda Console</h2>
+        <button class="close-btn" onclick="closeDetail()">Tutup ✕</button>
+      </div>
 
-            <button
-                class="close-btn"
-                onclick="closeDetail()"
-            >
-                Tutup ✕
-            </button>
+      <!-- URL WEBSITE -->
+
+      <div class="detail-section">
+        <div class="section-heading">
+          <span>URL WEBSITE</span>
+          <button
+            class="copy-btn"
+            onclick="copyText('https://lngshot-au-unknown.rinai.workers.dev/')"
+          >
+            Copy
+          </button>
         </div>
 
+        <div class="text-box">
+          https://lngshot-au-unknown.rinai.workers.dev/
+        </div>
+      </div>
 
-        <!-- URL WEBSITE -->
-        <div class="field">
-            <label>URL WEBSITE</label>
+      <!-- NAMA BOOKMARK -->
 
-            <div class="copy-row">
-                <input id="toolUrl" readonly>
-
-                <button onclick="copyField('toolUrl', this)">
-                    COPY
-                </button>
-            </div>
+      <div class="detail-section">
+        <div class="section-heading">
+          <span>NAMA BOOKMARK</span>
+          <button
+            class="copy-btn"
+            onclick="copyText('ERUDA CONSOLE')"
+          >
+            Copy
+          </button>
         </div>
 
+        <div class="text-box">
+          ERUDA CONSOLE
+        </div>
+      </div>
 
-        <!-- BOOKMARK NAME -->
-        <div class="field">
-            <label>NAMA BOOKMARK</label>
+      <!-- JAVASCRIPT SCRIPT -->
 
-            <div class="copy-row">
-                <input id="bookmarkName" readonly>
-
-                <button onclick="copyField('bookmarkName', this)">
-                    COPY
-                </button>
-            </div>
+      <div class="detail-section">
+        <div class="section-heading">
+          <span>JAVASCRIPT / SCRIPT</span>
+          <button
+            class="copy-btn"
+            onclick="copyText(erudaScript)"
+          >
+            Copy
+          </button>
         </div>
 
+        <pre class="code-box"><code id="erudaCode"></code></pre>
+      </div>
 
-        <!-- SCRIPT -->
-        <div class="field">
-            <label>JAVASCRIPT / SCRIPT</label>
+      <!-- FUNCTION CURPASS -->
 
-            <pre class="code-box" id="toolCode"></pre>
-
-            <button
-                class="copy-code"
-                onclick="copyCode(this)"
-            >
-                COPY SCRIPT
-            </button>
+      <div class="detail-section">
+        <div class="section-heading">
+          <span>FUNCTION</span>
+          <button
+            class="copy-btn"
+            onclick="copyText('curPass()')"
+          >
+            Copy
+          </button>
         </div>
 
+        <pre class="code-box"><code>curPass()</code></pre>
+      </div>
 
-        <!-- TOOL NOTE -->
-        <div class="note" id="toolNote"></div>
+      <!-- NOTE -->
 
+      <div class="note">
+        Eruda adalah developer console yang dapat digunakan di browser
+        mobile. Script ini memuat Eruda melalui CDN kemudian menjalankan
+        console setelah berhasil dimuat.
 
-        <!-- AU CREDIT -->
-        <div class="credit">
+        <br><br>
 
-            <span class="credit-label">
-                AU CREDIT
-            </span>
+        Gunakan hanya pada website milik sendiri atau website yang
+        memang kamu punya izin untuk menguji. Bookmarklet bisa saja
+        diblokir oleh browser atau kebijakan keamanan website.
+      </div>
 
-            <h3>UNKNOWN</h3>
+      <!-- AU CREDIT -->
 
-            <p>
-                A LNGSHOT Horror Interactive AU by hujan
-            </p>
+      <div class="credit">
+        <span class="credit-label">AU CREDIT</span>
 
-            <p>
-                Original creator:
-                <a
-                    href="https://x.com/midtales"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    @midtales
-                </a>
-            </p>
+        <h3>UNKNOWN</h3>
 
-        </div>
+        <p>A LNGSHOT Horror Interactive AU by hujan</p>
 
-    </section>
+        <p>
+          Original creator:
+          <a
+            href="https://x.com/midtales"
+            target="_blank"
+            rel="noopener noreferrer"
+          >@midtales</a>
+        </p>
+      </div>
 
+    </div>
 
-    <!-- FOOTER -->
     <footer>
-        Tools & Scripts Library · Personal Collection
+      Tools & Scripts Library · Personal Collection
     </footer>
 
-</div>
+  </div>
 
+  <script>
+    const erudaScript =
+      "javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/eruda';document.body.appendChild(s);s.onload=function(){eruda.init()}})();";
 
-<script>
+    document.getElementById("erudaCode").textContent = erudaScript;
 
-/* DATABASE TOOLS */
-const tools = {
+    // OPEN DETAIL
+    function openDetail() {
+      const panel = document.getElementById("detailPanel");
 
-    eruda: {
-        title: "01 — Eruda Console",
+      panel.style.display = "block";
 
-        url: "https://lngshot-au-unknown.rinai.workers.dev/",
-
-        bookmark: "ERUDA CONSOLE",
-
-        code: `javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/eruda';document.body.appendChild(s);s.onload=function(){eruda.init()}})();`,
-
-        note: "Eruda adalah developer console untuk browser mobile. Script ini memuat Eruda dari CDN. Gunakan untuk memeriksa halaman web yang kamu miliki atau punya izin untuk diuji. Bookmarklet dapat diblokir oleh kebijakan keamanan website atau browser."
+      setTimeout(() => {
+        panel.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }, 100);
     }
 
-};
+    // CLOSE DETAIL
+    function closeDetail() {
+      document.getElementById("detailPanel").style.display = "none";
+    }
 
+    // SEARCH TOOLS
+    function searchTools() {
+      const input = document
+        .getElementById("searchInput")
+        .value.toLowerCase();
 
-/* SHOW DETAIL */
-function showDetail(id) {
+      const cards = document.querySelectorAll(".tool-card");
+      let visibleCount = 0;
 
-    const tool = tools[id];
+      cards.forEach(card => {
+        const content = card.dataset.search.toLowerCase();
 
-    if (!tool) return;
+        if (content.includes(input)) {
+          card.style.display = "flex";
+          visibleCount++;
+        } else {
+          card.style.display = "none";
+        }
+      });
 
-    document.getElementById("detailTitle").textContent =
-        tool.title;
+      document.getElementById("emptyMessage").style.display =
+        visibleCount === 0 ? "block" : "none";
+    }
 
-    document.getElementById("toolUrl").value =
-        tool.url;
-
-    document.getElementById("bookmarkName").value =
-        tool.bookmark;
-
-    document.getElementById("toolCode").textContent =
-        tool.code;
-
-    document.getElementById("toolNote").textContent =
-        tool.note;
-
-    document.getElementById("detail").classList.add("active");
-
-    document.getElementById("detail").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-
-}
-
-
-/* CLOSE DETAIL */
-function closeDetail() {
-
-    document.getElementById("detail").classList.remove("active");
-
-}
-
-
-/* COPY TEXT */
-async function copyText(text, button) {
-
-    const oldText = button.textContent;
-
-    try {
-
+    // COPY TEXT
+    async function copyText(text) {
+      try {
         await navigator.clipboard.writeText(text);
+        alert("Berhasil disalin!");
+      } catch (error) {
+        const textarea = document.createElement("textarea");
 
-    } catch (error) {
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
 
-        const area = document.createElement("textarea");
+        document.body.appendChild(textarea);
+        textarea.select();
 
-        area.value = text;
-        area.style.position = "fixed";
-        area.style.opacity = "0";
+        const success = document.execCommand("copy");
+        textarea.remove();
 
-        document.body.appendChild(area);
-
-        area.select();
-        document.execCommand("copy");
-
-        area.remove();
-
+        alert(success ? "Berhasil disalin!" : "Gagal menyalin teks.");
+      }
     }
-
-    button.textContent = "COPIED ✓";
-
-    setTimeout(() => {
-        button.textContent = oldText;
-    }, 1500);
-
-}
-
-
-/* COPY URL / BOOKMARK */
-function copyField(id, button) {
-
-    const value = document.getElementById(id).value;
-
-    copyText(value, button);
-
-}
-
-
-/* COPY SCRIPT */
-function copyCode(button) {
-
-    const code =
-        document.getElementById("toolCode").textContent;
-
-    copyText(code, button);
-
-}
-
-
-/* SEARCH TOOLS */
-document.getElementById("search").addEventListener("input", function() {
-
-    const keyword = this.value.toLowerCase();
-
-    const cards = document.querySelectorAll(".tool-card");
-
-    let found = 0;
-
-    cards.forEach(card => {
-
-        const match = card.textContent
-            .toLowerCase()
-            .includes(keyword);
-
-        card.style.display = match ? "flex" : "none";
-
-        if (match) found++;
-
-    });
-
-    document.getElementById("empty").style.display =
-        found === 0 ? "block" : "none";
-
-});
-
-</script>
+  </script>
 
 </body>
 </html>
