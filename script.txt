@@ -1,0 +1,581 @@
+/*
+ * AU PASSCODE INSPECTOR
+ * Copyright (c) 2026 TIKTOK: kipankw. All rights reserved.
+ * Atribusi pembuat wajib dipertahankan. Dilarang menghapus atau mengubah
+ * nama pembuat tanpa izin tertulis dari pembuat asli.
+ */
+(async function main() {
+  'use strict';
+
+  // ===== LAPIS 1: identitas developer =====
+  const AUTHOR = 'TIKTOK: kipankw';
+  const SIG = 'bfcfbd96';
+
+  // ===== LAPIS 2: pesan atribusi/hak cipta (bukan cuma komentar, ikut di-cek) =====
+  const NOTICE = 'Copyright (c) 2026 TIKTOK: kipankw. All rights reserved. Dilarang menghapus atau mengubah atribusi pembuat tanpa izin tertulis dari pembuat asli.';
+
+  // ===== LAPIS 3: daftar kandidat (struktur inti script) =====
+  const CANDIDATES = [
+    'curPass', 'currentPass', 'currentPassword', 'passcode', 'password', 'pass', 'token',
+    'kode', 'kodePass', 'secretCode', 'pin', 'unlockCode', 'answerKey', 'rahasia', 'jawaban', 'key', 'secret', 'unlock'
+  ];
+  const CODE_KEYS  = ['code', 'passcode', 'pass', 'password', 'pin', 'answer', 'value', 'token', 'kode', 'rahasia', 'jawaban', 'key', 'secret', 'unlock'];
+  const HINT_KEYS  = ['hint', 'clue', 'tip', 'petunjuk'];
+
+  const NAME_STYLE = 'font-weight:bold';
+  const fnv = s => {
+    let x = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193) >>> 0; }
+    return x.toString(16);
+  };
+  const normalize = s => s
+    .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/[\u00A0\u202F]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const SIG2 = 'cfbb2dd0';
+
+  const stop = () => console.error(
+    '========== ERROR ==========\n' +
+    'Script ini telah dimodifikasi (nama, pesan hak cipta, daftar kandidat,\n' +
+    'atau logika pengecekannya sendiri).\n' +
+    'Script dihentikan. Gunakan versi asli dari pembuatnya.\n' +
+    '==========================='
+  );
+
+  // ===== LAPIS 4: pengecekan ini sendiri ikut di-hash, supaya tidak mudah "dijinakkan" =====
+  const tampered = () => {
+    try {
+      if (fnv(normalize(AUTHOR)) !== SIG) return true;
+      const selfSrc = normalize(
+        Function.prototype.toString.call(tampered) + '|' + Function.prototype.toString.call(stop)
+      ).replace(/SIG2='[0-9a-f]{8}'/, "SIG2=''");
+      const combined = normalize(NOTICE) + '||' + JSON.stringify(CANDIDATES) + '||' + selfSrc;
+      return fnv(combined) !== SIG2;
+    } catch (e) { return true; }
+  };
+
+  // ===== LAPIS 5: dicek dua kali -- di awal, dan lagi tepat sebelum hasil ditampilkan =====
+  if (tampered()) { stop(); return; }
+  const MARK = '\u0001';
+
+  const MAX_DEPTH = 6, MAX_NODES = 20000, MAX_ARRAY = 40, MAX_SRC = 2000000;
+  const RANK = { 'NOT FOUND': 0, FOUND: 1, EMPTY: 2, FUNCTION: 3, OBJECT: 4, INVALID: 5, VALID: 6 };
+  const PLACEHOLDERS = new Set([
+    'undefined', 'null', 'nan', 'true', 'false', '[object object]', 'object', 'string', 'function', 'text',
+    ...CANDIDATES.map(c => c.toLowerCase())
+  ]);
+
+  const DANGER_CALL = /\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|eval|Function|importScripts|setTimeout|setInterval|alert|prompt|confirm|print|submit|click|dispatchEvent|reload|assign|open|close|write|writeln|removeItem|setItem|clear|remove|appendChild|postMessage)\s*\(|\bimport\s*\(/;
+  const DANGER_SET  = /\b(?:window\.|document\.)?(?:location(?:\.\w+)?|document\.cookie)\s*=(?!=)/;
+  const GLOBAL_WRITE = /\b(window|globalThis|self|top|parent|this)\s*\.\s*[\w$]+\s*(?:[-+*\/|&^]|<<|>>>?)?=(?!=)/;
+  const UNSAFE_ACCESS = /\b(localStorage|sessionStorage|indexedDB|cookie|history|document|navigator|innerHTML|outerHTML|XMLHttpRequest|WebSocket|crypto|globalThis|eval|delete)\b/;
+  const KEYWORDS = new Set(['if', 'for', 'while', 'switch', 'catch', 'function', 'return', 'typeof', 'void', 'new', 'else', 'do', 'with', 'await', 'yield']);
+  const SAFE_CALLS = new Set([
+    'String', 'Number', 'Boolean', 'Array', 'Object', 'parseInt', 'parseFloat', 'isNaN', 'isFinite',
+    'atob', 'btoa', 'decodeURIComponent', 'encodeURIComponent', 'fromCharCode', 'fromCodePoint',
+    'charCodeAt', 'codePointAt', 'charAt', 'at', 'join', 'map', 'filter', 'reduce', 'slice', 'substring',
+    'substr', 'split', 'reverse', 'replace', 'replaceAll', 'toString', 'toUpperCase', 'toLowerCase',
+    'trim', 'trimStart', 'trimEnd', 'padStart', 'padEnd', 'repeat', 'concat', 'indexOf', 'lastIndexOf',
+    'includes', 'startsWith', 'endsWith', 'keys', 'values', 'entries', 'from', 'of', 'isArray', 'floor',
+    'ceil', 'round', 'trunc', 'abs', 'min', 'max', 'pow', 'stringify', 'parse', 'toFixed', 'flat',
+    'find', 'findIndex', 'some', 'every'
+  ]);
+
+  const out = [];
+  const log = (s = '') => out.push(s);
+  const row = (k, v) => log(k.padEnd(9) + ': ' + v);
+  const notes = [];
+  let evalOK = true;
+
+  const isIdent = k => /^[A-Za-z_$][\w$]*$/.test(k);
+  const joinPath = (p, k, arr) => arr ? `${p}[${k}]` : isIdent(k) ? `${p}.${k}` : `${p}[${JSON.stringify(k)}]`;
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const short = (s, n = 80) => { s = String(s).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+  const walkable = v => {
+    try {
+      if (v === null || typeof v !== 'object') return false;
+      const t = Object.prototype.toString.call(v);
+      return t === '[object Object]' || t === '[object Array]';
+    } catch (e) { return false; }
+  };
+  const isEvalBlocked = e => e instanceof EvalError || /unsafe-eval|Content Security Policy/i.test(String(e && e.message));
+  const shortUrl = u => { try { const x = new URL(u, location.href); return x.host + x.pathname; } catch (e) { return u; } };
+  const describe = v => {
+    if (v === null) return 'null';
+    if (Array.isArray(v)) return `Array(${v.length})`;
+    if (typeof v === 'object') {
+      let k = []; try { k = Object.keys(v); } catch (e) {}
+      return 'Object { ' + k.slice(0, 6).join(', ') + (k.length > 6 ? ', …' : '') + ' }';
+    }
+    return typeof v === 'string' ? 'String' : typeof v === 'number' ? 'Number' : typeof v;
+  };
+
+  function validateCode(v) {
+    if (typeof v === 'number') return Number.isFinite(v) ? { ok: true, code: String(v), type: 'Number' } : { ok: false, reason: 'angka tidak valid' };
+    if (typeof v !== 'string') return { ok: false, reason: 'tipe ' + typeof v };
+    const s = v.trim();
+    if (!s) return { ok: false, reason: 'kosong' };
+    if (s.length > 64) return { ok: false, reason: 'terlalu panjang (>64 karakter), bukan bentuk passcode' };
+    if (/[\r\n<>]/.test(s)) return { ok: false, reason: 'mengandung markup/baris baru' };
+    if (PLACEHOLDERS.has(s.toLowerCase())) return { ok: false, reason: 'placeholder/label, bukan nilai' };
+    if (/^eyJ[\w-]+\.[\w-]+\.[\w-]*$/.test(s) || /^[a-f0-9]{32,}$/i.test(s)) return { ok: false, reason: 'mirip auth token, tidak ditampilkan' };
+    return { ok: true, code: s, type: 'String' };
+  }
+
+  function pickField(o) {
+    let keys; try { keys = Object.keys(o); } catch (e) { return null; }
+    for (const ck of CODE_KEYS) {
+      const k = keys.find(x => x.toLowerCase() === ck);
+      if (!k) continue;
+      const d = Object.getOwnPropertyDescriptor(o, k);
+      if (d && 'value' in d) return { key: k, value: d.value };
+    }
+    return null;
+  }
+  function pickHint(o) {
+    try {
+      const keys = Object.keys(o);
+      for (const hk of HINT_KEYS) {
+        const k = keys.find(x => x.toLowerCase() === hk);
+        if (!k) continue;
+        const d = Object.getOwnPropertyDescriptor(o, k);
+        if (d && typeof d.value === 'string' && d.value.trim()) return short(d.value, 120);
+      }
+    } catch (e) {}
+    return undefined;
+  }
+
+  function classify(v, src, method, depth) {
+    const base = { method, source: src };
+    if (v === undefined || v === null) return { ...base, status: 'EMPTY', note: String(v) };
+    const t = typeof v;
+    if (t === 'string' && !v.trim()) return { ...base, status: 'EMPTY', note: 'string kosong' };
+    if (t === 'string' || t === 'number') {
+      const c = validateCode(v);
+      return c.ok ? { ...base, status: 'VALID', code: c.code, type: c.type } : { ...base, status: 'INVALID', note: c.reason };
+    }
+    if (t === 'function') return { ...base, status: 'INVALID', note: 'bernilai function (tidak dieksekusi bertingkat)' };
+    if (t === 'object') {
+      if (Array.isArray(v)) return { ...base, status: 'OBJECT', note: `Array(${v.length}), bukan struktur passcode` };
+      let then; try { then = v.then; } catch (e) {}
+      if (typeof then === 'function') return { ...base, status: 'INVALID', note: 'Promise/async tidak didukung' };
+      const f = pickField(v);
+      if (!f) return { ...base, status: 'OBJECT', note: 'tidak ada field passcode; ' + describe(v) };
+      if (depth >= 2) return { ...base, status: 'INVALID', note: 'struktur terlalu dalam' };
+      const r = classify(f.value, joinPath(src, f.key, false), method, depth + 1);
+      if (r.status === 'VALID') r.hint = r.hint || pickHint(v);
+      else r.note = `field "${f.key}": ` + (r.note || r.status);
+      return r;
+    }
+    return { ...base, status: 'INVALID', note: 'tipe ' + t };
+  }
+
+  const stripNoise = src => src.replace(
+    /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+    (m, s) => (s ? '""' : ' ')
+  );
+
+  function callSafety(fn) {
+    let src = '';
+    try { src = Function.prototype.toString.call(fn); } catch (e) { return { ok: false, reason: 'source tidak terbaca', src }; }
+    const no = reason => ({ ok: false, reason, src });
+    if (/\{\s*\[native code\]\s*\}/.test(src)) return no('native/bound function');
+    if (src.length > 20000) return no('terlalu panjang untuk diperiksa');
+    if (fn.length > 0) return no('membutuhkan argumen');
+    if (/^\s*(?:async\b|class\b)/.test(src) || /^\s*(?:async\s+)?function\s*\*/.test(src) || /^\s*\*/.test(src)) return no('async/generator/class');
+    const clean = stripNoise(src);
+    if (DANGER_CALL.test(clean)) return no('memanggil API berisiko (jaringan/navigasi/storage/dialog/eval)');
+    if (DANGER_SET.test(clean)) return no('mengubah location/cookie');
+    if (GLOBAL_WRITE.test(clean)) return no('menulis ke state global');
+
+    let pure = !UNSAFE_ACCESS.test(clean) && !/(\+\+|--)/.test(clean) && !/`[^`]*\$\{/.test(src);
+    if (pure) {
+      let body = clean.replace(/^\s*(?:async\s+)?function\s*\*?\s*[\w$]*/, 'function ');
+      if (!/^function\b/.test(body)) body = body.replace(/^\s*[\w$]+\s*(?=\()/, '');
+      const re = /([A-Za-z_$][\w$]*)\s*\(/g; let m;
+      while ((m = re.exec(body))) {
+        const id = m[1];
+        if (KEYWORDS.has(id) || SAFE_CALLS.has(id)) continue;
+        pure = false; break;
+      }
+    }
+    return { ok: true, pure, src };
+  }
+
+  function staticFromFunction(src) {
+    let m = src.match(/^\s*(?:\([^)]*\)|[\w$]+)\s*=>\s*(['"])([^'"\\\n]{1,64})\1\s*;?\s*$/);
+    if (m) return m[2];
+    const rets = src.match(/\breturn\b/g) || [];
+    if (rets.length === 1) {
+      m = src.match(/\breturn\s*(['"])([^'"\\\n]{1,64})\1/);
+      if (m) return m[2];
+      m = src.match(/\breturn\s*\(?\s*\{[^}]*?[{,\s](?:code|passcode|pass|password|pin)\s*:\s*(['"])([^'"\\\n]{1,64})\1/);
+      if (m) return m[2];
+    }
+    return null;
+  }
+
+  function methodFor(v, ctx) {
+    const b = typeof v === 'function' ? 'Function'
+      : (v !== null && typeof v === 'object') ? 'JavaScript object'
+      : ctx.scope === 'nested' ? 'JavaScript object' : 'Global variable';
+    return ctx.scope ? `${b} (${ctx.scope})` : b;
+  }
+
+  function assess(value, src, ctx) {
+    const method = methodFor(value, ctx);
+    if (typeof value === 'function') {
+      const safe = callSafety(value);
+      if (safe.ok) {
+        let ret;
+        try { ret = value.call(ctx.thisArg); }
+        catch (e) { return { method, source: src + '()', status: 'INVALID', note: 'function melempar ' + (e && e.name || 'error') }; }
+        const r = classify(ret, src + '()', method, 0);
+        r.ret = describe(ret);
+        if (r.status === 'VALID') r.note = safe.pure ? 'function dipanggil (terverifikasi murni)' : `function dipanggil seperti ${src}() manual`;
+        return r;
+      }
+      const lit = staticFromFunction(safe.src);
+      if (lit !== null) {
+        const c = validateCode(lit);
+        if (c.ok) return {
+          method: method + ' [static]', source: src + '()', status: 'VALID', code: c.code, type: c.type,
+          note: 'function tidak dieksekusi; literal dibaca dari source function'
+        };
+      }
+      return {
+        method, source: src + '()', status: 'FUNCTION',
+        note: `tidak dieksekusi (${safe.reason})`
+      };
+    }
+    return classify(value, src, method, 0);
+  }
+
+  function lookupRuntime(name) {
+    if (Object.prototype.hasOwnProperty.call(window, name)) {
+      const d = Object.getOwnPropertyDescriptor(window, name);
+      if (d && 'value' in d) return { kind: 'global property', value: d.value };
+      return { kind: 'global property', accessor: true };
+    }
+    if (!evalOK) return null;
+    let t;
+    try { t = (0, eval)('typeof ' + name); }
+    catch (e) {
+      if (isEvalBlocked(e)) { evalOK = false; notes.push('eval diblokir CSP: lexical binding (let/const) tidak dapat diperiksa'); return null; }
+      return { kind: 'lexical binding', err: e };
+    }
+    if (t === 'undefined') return null;
+    try { return { kind: 'lexical binding', value: (0, eval)(name) }; }
+    catch (e) { return { kind: 'lexical binding', err: e }; }
+  }
+
+  function baselineGlobals() {
+    let f;
+    try {
+      f = document.createElement('iframe');
+      f.style.display = 'none';
+      (document.body || document.documentElement).appendChild(f);
+      return new Set(Object.getOwnPropertyNames(f.contentWindow));
+    } catch (e) { return null; }
+    finally { try { f && f.remove(); } catch (e) {} }
+  }
+
+  const inline = [], external = [], jsonBlocks = [];
+  let moduleCount = 0;
+  Array.from(document.scripts).forEach(s => {
+    const type = (s.getAttribute('type') || '').trim().toLowerCase();
+    const src = s.getAttribute('src');
+    if (src) { external.push(s.src || src); return; }
+    if (/json/.test(type)) { jsonBlocks.push(s.textContent || ''); return; }
+    if (type === 'module') moduleCount++;
+    if (!type || /javascript|ecmascript|module/.test(type)) {
+      inline.push({ n: inline.length + 1, text: (s.textContent || '').slice(0, MAX_SRC), module: type === 'module' });
+    }
+  });
+
+  let rawHtmlAdded = 0;
+  try {
+    const res = await fetch(location.href, { cache: 'no-store' });
+    const html = await res.text();
+    const tagRe = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+    let m;
+    while ((m = tagRe.exec(html))) {
+      const attrs = m[1] || '';
+      if (/\bsrc\s*=/i.test(attrs)) continue;
+      const typeMatch = attrs.match(/type\s*=\s*["']?([^"'\s>]+)/i);
+      const type = (typeMatch ? typeMatch[1] : '').trim().toLowerCase();
+      if (/json/.test(type)) continue;
+      const text = (m[2] || '').slice(0, MAX_SRC);
+      if (!text.trim()) continue;
+      if (inline.some(s => s.text === text)) continue;
+      inline.push({ n: inline.length + 1, text, module: type === 'module', fromRawHtml: true });
+      rawHtmlAdded++;
+    }
+  } catch (e) {
+    notes.push('fetch ulang HTML gagal (CORS/jaringan): fallback script-yang-sudah-dihapus tidak aktif');
+  }
+  if (rawHtmlAdded) notes.push(`${rawHtmlAdded} script ditemukan lewat fetch ulang HTML (kemungkinan sudah dihapus dari DOM setelah dijalankan)`);
+
+  const roots = [];
+  let ownNames = [];
+  try { ownNames = Object.getOwnPropertyNames(window); } catch (e) {}
+  const ownSet = new Set(ownNames);
+  const base = baselineGlobals();
+  ownNames.forEach(k => {
+    if (base && base.has(k)) return;
+    try {
+      const d = Object.getOwnPropertyDescriptor(window, k);
+      if (d && 'value' in d && walkable(d.value)) roots.push({ obj: d.value, path: k });
+    } catch (e) {}
+  });
+
+  const declared = new Set();
+  inline.forEach(s => {
+    if (s.module) return;
+    const re = /(?:^|[^\w$.])(?:const|let|var|function\*?|class)\s+([A-Za-z_$][\w$]*)/g;
+    let m; while ((m = re.exec(s.text))) declared.add(m[1]);
+  });
+
+  const nameVariants = new Map();
+  const addVariant = n => {
+    const lc = n.toLowerCase();
+    if (!nameVariants.has(lc)) nameVariants.set(lc, new Set());
+    nameVariants.get(lc).add(n);
+  };
+  ownNames.forEach(addVariant);
+  declared.forEach(addVariant);
+
+  for (const nm of Array.from(declared).slice(0, 500)) {
+    if (!evalOK) break;
+    if (ownSet.has(nm)) continue;
+    try {
+      if ((0, eval)('typeof ' + nm) === 'object') {
+        const v = (0, eval)(nm);
+        if (walkable(v)) roots.push({ obj: v, path: nm });
+      }
+    } catch (e) { if (isEvalBlocked(e)) { evalOK = false; notes.push('eval diblokir CSP: lexical binding (let/const) tidak dapat diperiksa'); } }
+  }
+  jsonBlocks.forEach((t, i) => {
+    try { const v = JSON.parse(t); if (walkable(v)) roots.push({ obj: v, path: `jsonScript[${i + 1}]` }); } catch (e) {}
+  });
+
+  const wanted = new Set(CANDIDATES.map(c => c.toLowerCase()));
+  const index = new Map();
+  (function buildIndex() {
+    const seen = new WeakSet(), queue = [];
+    let nodes = 0;
+    roots.forEach(r => { if (!seen.has(r.obj)) { seen.add(r.obj); queue.push({ o: r.obj, p: r.path, d: 0 }); } });
+    for (let qi = 0; qi < queue.length && nodes < MAX_NODES; qi++) {
+      const { o, p, d } = queue[qi]; nodes++;
+      let keys;
+      try { keys = Object.getOwnPropertyNames(o); } catch (e) { continue; }
+      const isArr = Array.isArray(o);
+      if (isArr) keys = keys.filter(k => k !== 'length').slice(0, MAX_ARRAY);
+      for (const k of keys) {
+        let desc; try { desc = Object.getOwnPropertyDescriptor(o, k); } catch (e) { continue; }
+        if (!desc) continue;
+        const path = joinPath(p, k, isArr);
+        const lk = k.toLowerCase();
+        const isData = 'value' in desc;
+        if (wanted.has(lk)) {
+          if (!index.has(lk)) index.set(lk, []);
+          index.get(lk).push({ path, value: isData ? desc.value : undefined, accessor: !isData, parent: o });
+        }
+        if (isData && d < MAX_DEPTH && walkable(desc.value) && !seen.has(desc.value)) {
+          seen.add(desc.value);
+          queue.push({ o: desc.value, p: path, d: d + 1 });
+        }
+      }
+    }
+  })();
+
+  function scanSource(name) {
+    const n = esc(name);
+    const LIT = String.raw`(?:(?<q>['"])(?<s>[^'"\\\n]{1,64})\k<q>|(?<d>\d{1,12})(?![\w.]))`;
+    const preAssign = String.raw`(?:(?:^|[^\w$.])(?:const|let|var)\s+|[;{}]\s*|^\s*|\.)${n}\s*=(?![=>])\s*`;
+    const preKey = String.raw`[{,]\s*['"]?${n}['"]?\s*:\s*`;
+    const litRes = [new RegExp(preAssign + LIT, 'gm'), new RegExp(preKey + LIT, 'gm')];
+    const declRes = [
+      new RegExp(String.raw`(?:^|[^\w$.])(?:const|let|var|function\*?|class)\s+${n}(?![\w$])`, 'gm'),
+      new RegExp(preAssign, 'gm'),
+      new RegExp(preKey, 'gm'),
+      new RegExp(String.raw`(?:^|[^\w$.])${n}\s*\([^)]*\)\s*\{`, 'gm')
+    ];
+    const lits = []; let decl = null;
+    for (const s of inline) {
+      if (!s.text.includes(name)) continue;
+      for (const re of litRes) {
+        let c = 0;
+        for (const m of s.text.matchAll(re)) {
+          if (c++ >= 20) break;
+          const g = m.groups;
+          lits.push({
+            n: s.n, code: g.s !== undefined ? g.s : g.d, kind: g.s !== undefined ? 'String' : 'Number',
+            snip: short(s.text.slice(m.index, m.index + 70).trim(), 70)
+          });
+        }
+      }
+      if (!decl) {
+        for (const re of declRes) {
+          const m = re.exec(s.text);
+          if (m) { decl = { n: s.n, snip: short(s.text.slice(m.index, m.index + 70).trim(), 70) }; break; }
+        }
+      }
+    }
+    return { lits, decl };
+  }
+
+  log('========== AU INSPECTOR ==========');
+  log('');
+  row('Target', location.href);
+  row('Scripts', `${inline.length} inline, ${external.length} external` + (jsonBlocks.length ? `, ${jsonBlocks.length} JSON` : ''));
+  external.slice(0, 6).forEach((u, i) => {
+    const t = short(shortUrl(u), 70);
+    if (i === 0) row('External', t); else log(' '.repeat(11) + t);
+  });
+  if (external.length > 6) log(' '.repeat(11) + `+${external.length - 6} lainnya`);
+  log('');
+
+  if (moduleCount) notes.push(`${moduleCount} module script: binding di dalam module tidak terjangkau dari Console`);
+  if (window.length > 0) notes.push(`terdapat ${window.length} iframe: pilih context iframe di Console bila passcode ada di sana`);
+  notes.push('script eksternal tidak di-fetch; variabel yang dibuatnya tetap terdeteksi lewat runtime');
+
+  const valids = [];
+  const failed = [];
+
+  for (let i = 0; i < CANDIDATES.length; i++) {
+    const name = CANDIDATES[i];
+    const discovered = Array.from(nameVariants.get(name.toLowerCase()) || []);
+    const guesses = [name, name.toLowerCase(), name.toUpperCase(), name[0].toUpperCase() + name.slice(1).toLowerCase()];
+    const actualNames = Array.from(new Set([...discovered, ...guesses]));
+
+    let best = { status: 'NOT FOUND' };
+    const consider = r => { if (RANK[r.status] > RANK[best.status]) best = r; return r.status === 'VALID'; };
+
+    const stageRuntime = () => {
+      for (const actual of actualNames) {
+        const rt = lookupRuntime(actual);
+        if (!rt) continue;
+        const m = rt.kind;
+        let r;
+        if (rt.accessor) r = { status: 'FOUND', method: `Global variable (${m})`, source: actual, note: 'accessor/getter, tidak dipanggil' };
+        else if (rt.err) r = { status: 'FOUND', method: `Global variable (${m})`, source: actual, note: 'tidak dapat dibaca: ' + (rt.err.name || 'error') };
+        else r = assess(rt.value, actual, { scope: m, thisArg: window });
+        if (consider(r)) return true;
+      }
+      return false;
+    };
+
+    const stageNested = () => {
+      for (const h of (index.get(name.toLowerCase()) || [])) {
+        const r = h.accessor
+          ? { status: 'FOUND', method: 'JavaScript object (nested)', source: h.path, note: 'getter, tidak dipanggil' }
+          : assess(h.value, h.path, { scope: 'nested', thisArg: h.parent });
+        if (consider(r)) return true;
+      }
+      return false;
+    };
+
+    const stageStatic = () => {
+      for (const actual of actualNames) {
+        const st = scanSource(actual);
+        if (st.lits.length) {
+          const valid = new Map(); let reason = '';
+          for (const l of st.lits) {
+            const c = validateCode(l.code);
+            if (c.ok) { if (!valid.has(c.code)) valid.set(c.code, { l, c }); }
+            else if (!reason) reason = c.reason;
+          }
+          if (valid.size === 1) {
+            const { l, c } = valid.values().next().value;
+            if (consider({
+              status: 'VALID', method: 'Inline JavaScript (static literal)',
+              source: `inline script #${l.n}: ${l.snip}`, code: c.code, type: l.kind,
+              note: 'dibaca statis dari source, belum diverifikasi saat runtime'
+            })) return true;
+            continue;
+          }
+          if (valid.size > 1) { consider({ status: 'INVALID', method: 'Inline JavaScript (static literal)', source: `inline script #${st.lits[0].n}`, note: `ambigu: ${valid.size} literal berbeda, tidak dipilih` }); continue; }
+          consider({ status: 'INVALID', method: 'Inline JavaScript (static literal)', source: `inline script #${st.lits[0].n}: ${st.lits[0].snip}`, note: reason });
+          continue;
+        }
+        if (st.decl) {
+          consider({
+            status: 'FOUND', method: 'Inline JavaScript (declaration)', source: `inline script #${st.decl.n}: ${st.decl.snip}`,
+            note: 'dideklarasikan tetapi tidak dapat diakses dari Console (module/closure/belum dijalankan)'
+          });
+        }
+      }
+      return false;
+    };
+
+    let valid = false;
+    for (const stage of [stageRuntime, stageNested, stageStatic]) {
+      try { if (stage()) { valid = true; break; } }
+      catch (e) { notes.push(`${name}: error saat inspeksi (${e && e.name || 'error'})`); }
+    }
+
+    const otherCase = actualNames.filter(a => a !== name);
+    log(`[${i + 1}/${CANDIDATES.length}] ${name}` + (otherCase.length ? ` (ditemukan juga sebagai: ${otherCase.join(', ')})` : ''));
+    row('Status', best.status);
+    if (best.status !== 'NOT FOUND') {
+      row('Method', best.method);
+      row('Source', best.source);
+      if (best.status === 'VALID') row('Value', best.code);
+      if (best.ret) row('Return', best.ret);
+      if (best.note) row('Note', best.note);
+    }
+    log('');
+
+    if (valid) valids.push({ name, r: best });
+    else if (best.status !== 'NOT FOUND') failed.push(`${name} → ${best.status}${best.note ? ': ' + best.note : ''}`);
+  }
+
+  if (tampered()) { stop(); return; }
+
+  log(`========== SCAN RESULT | ${MARK} ==========`);
+  log('');
+  if (valids.length) {
+    const groups = new Map();
+    valids.forEach(v => {
+      if (!groups.has(v.r.code)) groups.set(v.r.code, []);
+      groups.get(v.r.code).push(v);
+    });
+    const multi = groups.size > 1;
+    const r2 = (k, v) => log('  ' + k.padEnd(8) + ': ' + v);
+    let n = 0;
+    groups.forEach((list, code) => {
+      n++;
+      const f = list[0].r;
+      log(multi ? `Passcode ${n} : ${code}` : `Passcode : ${code}`);
+      r2('Source', list.map(x => x.r.source).join('  |  '));
+      r2('Type', f.type);
+      r2('Method', f.method);
+      if (f.hint) r2('Hint', f.hint);
+      if (f.ret) r2('Return', f.ret);
+      if (f.note) r2('Note', f.note);
+      log('');
+    });
+    if (multi) {
+      log(`Ditemukan ${groups.size} kode berbeda. Script tidak dapat menentukan`);
+      log('mana yang dipakai halaman; coba satu per satu. Urutan di atas');
+      log('hanya mengikuti prioritas nama kandidat, bukan kebenaran kode.');
+      log('');
+    }
+    row('Status', 'FOUND');
+  } else {
+    row('Result', 'Tidak ada passcode valid yang dapat diverifikasi');
+    row('Checked', `${CANDIDATES.length} kandidat`);
+  }
+  if (failed.length) { log(''); log('Kandidat terdeteksi tapi tidak valid:'); failed.forEach(f => log('  - ' + f)); }
+  if (!valids.length && notes.length) { log(''); log('Catatan:'); Array.from(new Set(notes)).forEach(n => log('  - ' + n)); }
+  log('');
+  log('==================================');
+
+  const text = out.join('\n').replace(/%/g, '%%').replace(MARK, '%c' + AUTHOR + '%c');
+  console.log(text, NAME_STYLE, '');
+})();

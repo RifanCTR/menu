@@ -1,0 +1,389 @@
+
+:root {
+  --bg: #0b1020;
+  --card: #141c30;
+  --card-hover: #1a2540;
+  --text: #f1f5ff;
+  --muted: #9ba8c1;
+  --accent: #6c8cff;
+  --border: #293653;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  padding: 25px 16px;
+}
+
+.container {
+  max-width: 750px;
+  margin: auto;
+}
+
+header {
+  margin-bottom: 30px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  background: rgba(108,140,255,.1);
+  border: 1px solid rgba(108,140,255,.25);
+  padding: 7px 11px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+header h1 {
+  font-size: clamp(27px, 6vw, 38px);
+  margin-bottom: 10px;
+}
+
+header p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.search-box {
+  margin-bottom: 30px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 15px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.search-box input:focus {
+  border-color: var(--accent);
+}
+
+.section-title {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 15px;
+}
+
+/* TOOL LIST */
+
+.tool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tool-item {
+  width: 100%;
+}
+
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 17px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.tool-card:hover,
+.tool-card.active {
+  background: var(--card-hover);
+  border-color: var(--accent);
+}
+
+.tool-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(108,140,255,.12);
+  border: 1px solid rgba(108,140,255,.25);
+  border-radius: 10px;
+  color: var(--accent);
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.tool-info {
+  flex: 1;
+}
+
+.tool-number {
+  color: var(--accent);
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.tool-info h3 {
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.tool-info p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.arrow {
+  color: var(--muted);
+  font-size: 20px;
+  transition: transform .25s;
+}
+
+.tool-card.active .arrow {
+  transform: rotate(90deg);
+}
+
+/* DETAIL PANEL */
+
+.detail-panel {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 12px;
+  animation: appear .25s ease;
+}
+
+.detail-panel.show {
+  display: block;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.detail-header h2 {
+  font-size: 17px;
+}
+
+.status {
+  color: var(--accent);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.detail-section {
+  margin-bottom: 22px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.section-heading span {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+}
+
+.copy-btn {
+  background: rgba(108,140,255,.12);
+  border: 1px solid rgba(108,140,255,.3);
+  color: var(--accent);
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.copy-btn:active {
+  transform: scale(.95);
+}
+
+.text-box {
+  background: #0b1020;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 13px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.code-box {
+  background: #080d19;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  overflow-x: auto;
+  color: #a9c4ff;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note {
+  background: rgba(108,140,255,.07);
+  border-left: 3px solid var(--accent);
+  padding: 13px;
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+
+/* CREDIT */
+
+.credit {
+  background: #0b1020;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 17px;
+  margin-top: 25px;
+}
+
+.credit-label {
+  display: inline-block;
+  color: var(--accent);
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.credit h3 {
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+.credit p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.credit a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* APK */
+
+.apk-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px;
+  background: #0b1020;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.apk-logo {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.apk-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.apk-info {
+  flex: 1;
+}
+
+.apk-info h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.apk-info p {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.download-btn {
+  background: rgba(108,140,255,.15);
+  border: 1px solid rgba(108,140,255,.3);
+  color: var(--accent);
+  padding: 9px 13px;
+  border-radius: 7px;
+  text-decoration: none;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.download-btn:hover {
+  background: rgba(108,140,255,.25);
+}
+
+.empty {
+  display: none;
+  text-align: center;
+  padding: 25px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 35px 0 10px;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 22px 14px;
+  }
+
+  .detail-panel {
+    padding: 16px;
+  }
+
+  .tool-card {
+    padding: 14px;
+  }
+}
